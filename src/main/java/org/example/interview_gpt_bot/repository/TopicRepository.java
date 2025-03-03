@@ -67,6 +67,9 @@ import java.util.List;
                 "Что такое deadlock и как можно его предотвратить в Java?",
                 "Как использовать конструкцию try-catch-finally для управления ресурсами в многопоточной среде?"
         );
+        public String getRandomTopic() {
+            return topics.get((int) (Math.random() * topics.size()));
+        }
     }
 
 
