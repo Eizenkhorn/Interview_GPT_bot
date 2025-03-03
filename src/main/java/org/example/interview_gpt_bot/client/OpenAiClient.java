@@ -4,14 +4,18 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.example.interview_gpt_bot.dto.GptRequest;
 import org.example.interview_gpt_bot.dto.GptResponse;
+import org.example.interview_gpt_bot.dto.Transcription;
 
 
-
+import java.io.File;
 import java.util.List;
 
 @Component
@@ -29,6 +33,15 @@ public class OpenAiClient {
 
     @Value("${openai.api.chat.system_role}")
     private String systemRole;
+
+    @Value("${openai.api.transcription.url}")
+    private String transcriptionApiUrl;
+
+    @Value("${openai.api.transcription.model}")
+    private String voiceModel;
+
+    @Value("${openai.api.transcription.language}")
+    private String language;
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
@@ -61,5 +74,26 @@ public class OpenAiClient {
             throw new IllegalStateException("There's an error when parsing JSON response from GPT", e);
         }
         return responseBody.getChoices().get(0).getMessage().getContent();
+    }
+    public String transcribe(File audio) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + apiKey);
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        FileSystemResource fileResource = new FileSystemResource(audio);
+        body.add("file", fileResource);
+        body.add("model", voiceModel);
+        body.add("language", language);
+
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+        ResponseEntity<String> response = restTemplate.postForEntity(transcriptionApiUrl, requestEntity, String.class);
+        Transcription transcription;
+        try {
+            transcription = objectMapper.readValue(response.getBody(), Transcription.class);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("There was an error when converting JSON response to DTO", e);
+        }
+        return transcription.text();
     }
 }

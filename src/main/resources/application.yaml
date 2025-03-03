@@ -1,9 +1,13 @@
 bot:
-  token:7576508625:AAFk1o-Gb_3NOKLklgCd0wjezATzr_OF4Fs
+  token: 7576508625:AAFk1o-Gb_3NOKLklgCd0wjezATzr_OF4Fs
 
 openai:
   api:
     key: gpt:AYUupoj8rEhBsc45UnrU7QunfuVVLY3s9zrjLYKRQFMkhR-FmEDU-uURErU93AL6cRkLBgF6X_JFkblB3TvRptZ6Bkv5rxmLdYnKw-NtZ_VUR--1O4kwDi6CU2VYW0NY7G5AK2vtgGCAyUsP4uikF4F7ENw2
+    transcription:
+      url: https://api.openai.com/v1/audio/transcriptions
+      model: whisper-1
+      language: ru
     chat:
       url: https://api.openai.com/v1/chat/completions
       model: gpt-4o-mini
